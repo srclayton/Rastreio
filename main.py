@@ -19,11 +19,15 @@ class Object:
             self.events = LinkedList([event])
         else:
             self.events.append([event])
+
     def printList(self):
         print(self.expectedDate,
         self.category,
-        self.description ,
-        self.events)
+        self.description,
+        )
+        print(self.events)
+
+
 
 class Event:
     def __init__(self,description,dateTime,city,uf,type,destCity, destUf, destType):
@@ -46,14 +50,14 @@ class Event:
         self.destUf,
         self.destType)
 
-def initializeObject(data, object):
+def initializeObject(data):
     object = Object(data['objetos'][0]['codObjeto'],
         data['objetos'][0]['dtPrevista'],
         data['objetos'][0]['tipoPostal']['categoria'],
         data['objetos'][0]['tipoPostal']['descricao'],
         None
     )
-
+    return object
 
 
 
@@ -87,11 +91,9 @@ def addAllEvents(data, object):
                 None,
                 None)
 
-
 def main():
     data = getJsonRequest("QC144617315BR")
-    object = None
-    initializeObject(data,object)
+    object = initializeObject(data)
     addAllEvents(data, object)
     object.printList()
 
