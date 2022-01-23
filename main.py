@@ -21,11 +21,15 @@ class Object:
             self.events.append([event])
 
     def printList(self):
-        print(self.expectedDate,
-        self.category,
-        self.description,
+        print("\nCategoria de entrega:", self.category,
+        "\nDescrição:", self.description,
+        "\nData prevista para entrega:", self.expectedDate, "\n\n"
         )
-        print(self.events)
+        for i in self.events:
+            try:
+                i.printList()
+            except:
+                i[0].printList()
 
 
 
@@ -41,22 +45,37 @@ class Event:
         self.destType = destType
 
     def printList(self):
-        print(self.description,
-        self.dateTime,
-        self.city,
-        self.uf,
-        self.type,
-        self.destCity ,
-        self.destUf,
-        self.destType)
-
+        if(self.destCity is None or self.destUf is None or self.destType is None):
+            print(self.description,
+            "\nPela" ,self.type,
+            ",",self.city,
+            "-",self.uf,
+            "\n",self.dateTime, "\n------------------------------------------------"
+            )
+        else:
+            print(self.description,
+            "\nde",self.type,
+            ",",self.city,
+            "-",self.uf,
+            "\npara",self.destType,
+            ",",self.destCity ,
+            "-",self.destUf,
+            "\n",self.dateTime,"\n------------------------------------------------")
 def initializeObject(data):
-    object = Object(data['objetos'][0]['codObjeto'],
-        data['objetos'][0]['dtPrevista'],
-        data['objetos'][0]['tipoPostal']['categoria'],
-        data['objetos'][0]['tipoPostal']['descricao'],
-        None
-    )
+    try:
+        object = Object(data['objetos'][0]['codObjeto'],
+            None,
+            data['objetos'][0]['tipoPostal']['categoria'],
+            data['objetos'][0]['tipoPostal']['descricao'],
+            None
+        )
+    except:
+        object = Object(data['objetos'][0]['codObjeto'],
+            data['objetos'][0]['dtPrevista'],
+            data['objetos'][0]['tipoPostal']['categoria'],
+            data['objetos'][0]['tipoPostal']['descricao'],
+            None
+        )
     return object
 
 
@@ -92,11 +111,9 @@ def addAllEvents(data, object):
                 None)
 
 def main():
-    data = getJsonRequest("QC144617315BR")
+    data = getJsonRequest("QI608436875BR")
     object = initializeObject(data)
     addAllEvents(data, object)
     object.printList()
-
-
 
 main()
