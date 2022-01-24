@@ -1,6 +1,8 @@
 import requests
 import json
 import structlinks
+import datetime
+import locale
 from structlinks.DataStructures import LinkedList
 
 
@@ -36,7 +38,7 @@ class Object:
 class Event:
     def __init__(self,description,dateTime,city,uf,type,destCity, destUf, destType):
         self.description = description
-        self.dateTime = dateTime
+        self.dateTime = datetime.datetime.strptime(dateTime,'%Y-%m-%dT%H:%M:%S')
         self.city = city
         self.uf = uf
         self.type = type
@@ -50,7 +52,7 @@ class Event:
             "\nPela" ,self.type,
             ",",self.city,
             "-",self.uf,
-            "\n",self.dateTime, "\n------------------------------------------------"
+            "\n",self.dateTime.strftime("%A, %d. %B %Y %I:%M%p").capitalize(), "\n------------------------------------------------"
             )
         else:
             print(self.description,
@@ -60,7 +62,7 @@ class Event:
             "\npara",self.destType,
             ",",self.destCity ,
             "-",self.destUf,
-            "\n",self.dateTime,"\n------------------------------------------------")
+            "\n",self.dateTime.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),"\n------------------------------------------------")
 def initializeObject(data):
     try:
         object = Object(data['objetos'][0]['codObjeto'],
@@ -111,9 +113,11 @@ def addAllEvents(data, object):
                 None)
 
 def main():
-    data = getJsonRequest("QI608436875BR")
+    locale.setlocale(locale.LC_ALL, 'pt_pt.UTF-8')
+    data = getJsonRequest("PZ918645862BR")
     object = initializeObject(data)
     addAllEvents(data, object)
+    object.events.invert()
     object.printList()
 
 main()
