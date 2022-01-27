@@ -38,7 +38,7 @@ class Object:
 class Event:
     def __init__(self,description,dateTime,city,uf,type,destCity, destUf, destType):
         self.description = description
-        self.dateTime = datetime.datetime.strptime(dateTime,'%Y-%m-%dT%H:%M:%S')
+        self.dateTime = dateTime
         self.city = city
         self.uf = uf
         self.type = type
@@ -52,7 +52,7 @@ class Event:
             "\nPela" ,self.type,
             ",",self.city,
             "-",self.uf,
-            "\n",self.dateTime.strftime("%A, %d. %B %Y %I:%M%p").capitalize(), "\n------------------------------------------------"
+            "\n",self.dateTime,"\n------------------------------------------------"
             )
         else:
             print(self.description,
@@ -62,7 +62,7 @@ class Event:
             "\npara",self.destType,
             ",",self.destCity ,
             "-",self.destUf,
-            "\n",self.dateTime.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),"\n------------------------------------------------")
+            "\n",self.dateTime,"\n------------------------------------------------")
 def initializeObject(data):
     try:
         object = Object(data['objetos'][0]['codObjeto'],
@@ -91,10 +91,11 @@ def getJsonRequest(key):
 
 def addAllEvents(data, object):
     for x in data['objetos'][0]['eventos']:
+        formattedDate = datetime.datetime.strptime(x['dtHrCriado'],'%Y-%m-%dT%H:%M:%S')
         if(x['codigo'] != "PO" and x['codigo'] != "OEC" and x['codigo'] != "BDE"):
             object.addEvents(
                 x['descricao'],
-                x['dtHrCriado'],
+                formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
                 x['unidade']['endereco']['cidade'],
                 x['unidade']['endereco']['uf'],
                 x['unidade']['tipo'],
@@ -104,13 +105,17 @@ def addAllEvents(data, object):
         else:
             object.addEvents(
                 x['descricao'],
-                x['dtHrCriado'],
+                formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
                 x['unidade']['endereco']['cidade'],
                 x['unidade']['endereco']['uf'],
                 x['unidade']['tipo'],
                 None,
                 None,
                 None)
+
+def exportJson(object):
+    with open('data.json', 'w',encoding='utf8') as f:
+        json.dump(object,f,ensure_ascii=False,default=lambda o: o.__dict__)
 
 def main():
     locale.setlocale(locale.LC_ALL, 'pt_pt.UTF-8')
@@ -119,5 +124,6 @@ def main():
     addAllEvents(data, object)
     object.events.invert()
     object.printList()
+    exportJson(object)
 
 main()
