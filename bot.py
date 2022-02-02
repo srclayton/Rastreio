@@ -1,10 +1,15 @@
-
-# This program is dedicated to the public domain under the CC0 license.
-
 import logging
 import json
-from telegram import Update, ForceReply
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram.ext import (
+    Updater,
+    CommandHandler,
+    MessageHandler,
+    Filters,
+    ConversationHandler,
+    CallbackContext,
+)
 
 # Enable logging
 logging.basicConfig(
@@ -12,33 +17,58 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+cod={'id':''}
+RASTREAR,OPTION, LOCATION, BIO = range(4)
 
 
-# Define a few command handlers. These usually take the two arguments update and
-# context.
-def start(update: Update, context: CallbackContext) -> None:
-    f = open('data.json')
-    data = json.load(f)
-    print(data['objectCode'])
-    user = update.effective_user
-    update.message.reply_markdown_v2(
-        fr'Olá {user.mention_markdown_v2()}, Seja bem vindo ao seu bot de rastreamento de encomendas \!',
-        reply_markup=ForceReply(selective=True),
+def start(update: Update, context: CallbackContext) -> int:
+    """Starts the conversation and asks the user about their gender."""
+    reply_keyboard = [['Rastrear', 'Ajuda', 'Sobre']]
+
+    update.message.reply_text(
+        'Olá seja bem vindo ao seu bot de rastreamento. '
+        'Selecione a opção desejada, ou digite Rastrear, Ajuda ou Sobre',
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Boy or Girl?'
+        ),
     )
 
-
-def help_command(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
+    return OPTION
 
 
-def echo(update: Update, context: CallbackContext) -> None:
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
+def rastreio(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    logger.info("Codigo de rastreio %s: %s", user.first_name, update.message.text)
+    update.message.reply_text(
+        'Por favor digite o seu Codigo de rastreio.',
+        reply_markup=ReplyKeyboardRemove(),
+    )
+
+    return RASTREAR
+
+
+def exportCod(update: Update, context: CallbackContext) -> int:
+    cod['id'] = update.message.text
+    with open('cod.json', 'w',encoding='utf8') as f:
+        json.dump(cod,f,ensure_ascii=False,default=lambda o: o.__dict__)
+
+    #return LOCATION
+
+
+
+def cancel(update: Update, context: CallbackContext) -> int:
+    """Cancels and ends the conversation."""
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text(
+        'Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove()
+    )
+
+    return ConversationHandler.END
 
 
 def main() -> None:
-    """Start the bot."""
+    """Run the bot."""
     # Create the Updater and pass it your bot's token.
     a = open("token.txt","r")
     token = a.read()
@@ -48,12 +78,17 @@ def main() -> None:
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
-    # on different commands - answer in Telegram
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
+    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            OPTION: [MessageHandler(Filters.regex('^(Rastrear|Ajuda|Sobre)$'), rastreio)],
+            RASTREAR: [MessageHandler(Filters.text, exportCod)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)],
+    )
 
-    # on non command i.e message - echo the message on Telegram
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    dispatcher.add_handler(conv_handler)
 
     # Start the Bot
     updater.start_polling()

@@ -118,8 +118,10 @@ def exportJson(object):
         json.dump(object,f,ensure_ascii=False,default=lambda o: o.__dict__)
 
 def main():
+    f = open('cod.json')
+    data = json.load(f)
     locale.setlocale(locale.LC_ALL, 'pt_pt.UTF-8')
-    data = getJsonRequest("PZ918645862BR")
+    data = getJsonRequest(data['id'])
     object = initializeObject(data)
     addAllEvents(data, object)
     object.events.invert()
