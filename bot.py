@@ -1,6 +1,6 @@
 import logging
 import json
-
+import requests
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
     Updater,
@@ -48,11 +48,27 @@ def rastreio(update: Update, context: CallbackContext) -> int:
 
 
 def exportCod(update: Update, context: CallbackContext) -> int:
-    cod['id'] = update.message.text
-    with open('cod.json', 'w',encoding='utf8') as f:
-        json.dump(cod,f,ensure_ascii=False,default=lambda o: o.__dict__)
 
-    #return LOCATION
+    url = "http://127.0.0.1:5000/rastrear?id="+update.message.text
+    r = requests.get(url)
+    data = r.json()
+    print(data['cod'])
+    if(data['cod'] == "200"):
+        print(data)
+        update.message.reply_text(
+            data,
+        )
+    else:
+        update.message.reply_text(
+            data['mensagem']
+        )
+
+    return ConversationHandler.END
+
+    # with open('cod.json', 'w',encoding='utf8') as f:
+    #     json.dump(cod,f,ensure_ascii=False,default=lambda o: o.__dict__)
+
+
 
 
 

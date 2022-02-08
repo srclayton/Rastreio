@@ -3,12 +3,14 @@ import json
 import structlinks
 import datetime
 import locale
+from flask import Flask, request
 from structlinks.DataStructures import LinkedList
 
-
+app = Flask("Rastreio")
 
 class Object:
-    def __init__(self,objectCode,expectedDate,category,description, events):
+    def __init__(self,cod,objectCode,expectedDate,category,description, events):
+        self.cod = cod
         self.objectCode = objectCode
         self.expectedDate = expectedDate
         self.category = category
@@ -65,14 +67,14 @@ class Event:
             "\n",self.dateTime,"\n------------------------------------------------")
 def initializeObject(data):
     try:
-        object = Object(data['objetos'][0]['codObjeto'],
+        object = Object("200",data['objetos'][0]['codObjeto'],
             None,
             data['objetos'][0]['tipoPostal']['categoria'],
             data['objetos'][0]['tipoPostal']['descricao'],
             None
         )
     except:
-        object = Object(data['objetos'][0]['codObjeto'],
+        object = Object(200,data['objetos'][0]['codObjeto'],
             data['objetos'][0]['dtPrevista'],
             data['objetos'][0]['tipoPostal']['categoria'],
             data['objetos'][0]['tipoPostal']['descricao'],
@@ -117,15 +119,20 @@ def exportJson(object):
     with open('data.json', 'w',encoding='utf8') as f:
         json.dump(object,f,ensure_ascii=False,default=lambda o: o.__dict__)
 
-def main():
-    f = open('cod.json')
-    data = json.load(f)
-    locale.setlocale(locale.LC_ALL, 'pt_pt.UTF-8')
-    data = getJsonRequest(data['id'])
-    object = initializeObject(data)
-    addAllEvents(data, object)
-    object.events.invert()
-    object.printList()
-    exportJson(object)
 
-main()
+@app.route("/rastrear", methods=["GET"])
+def main():
+    id = request.args.get("id")
+    locale.setlocale(locale.LC_ALL, 'pt_pt.UTF-8')
+    data = getJsonRequest(id)
+    try:
+        object = initializeObject(data)
+        addAllEvents(data, object)
+        object.events.invert()
+        ##object.printList()
+        #exportJson(object)
+        return json.dumps(object,ensure_ascii=False,default=lambda o: o.__dict__)
+    except:
+        return {"cod":"404","mensagem":" SRO-019: Objeto inválido"}
+
+app.run()
