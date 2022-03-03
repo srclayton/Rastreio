@@ -1,6 +1,5 @@
 token.txt
 cod.json
 data.json
-
-.idea/
-.vscode/
+__pycache__
+test.py

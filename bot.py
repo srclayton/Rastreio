@@ -10,6 +10,8 @@ from telegram.ext import (
     ConversationHandler,
     CallbackContext,
 )
+from Object import Object
+from Event import Event
 
 # Enable logging
 logging.basicConfig(
@@ -47,17 +49,25 @@ def rastreio(update: Update, context: CallbackContext) -> int:
     return RASTREAR
 
 
-def exportCod(update: Update, context: CallbackContext) -> int:
 
+def exportCod(update: Update, context: CallbackContext) -> int:
+    user = update.effective_user
     url = "http://127.0.0.1:5000/rastrear?id="+update.message.text
     r = requests.get(url)
     data = r.json()
-    print(data['cod'])
+
     if(data['cod'] == "200"):
-        print(data)
-        update.message.reply_text(
-            data,
-        )
+        str = 'Categoria: ' + data['category'] + '\nCodigo: ' + data['objectCode'] + '\nDescrição: ' + data['description'] 
+        print(str)
+        update.message.reply_text(fr"{str}")
+        for x in data['events']:
+            if(x['destCity'] is None):
+                event = x['description'] + '\nPela ' + x['type'] + ', ' + x['city'] + ' _ '+ x['uf'] + '\n' + x['dateTime']
+                print(event)
+                update.message.reply_markdown_v2(fr' {event}')
+                #update.message.reply_markdown_v2(fr"{str}")
+            
+
     else:
         update.message.reply_text(
             data['mensagem']

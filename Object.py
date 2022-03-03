@@ -1,3 +1,5 @@
+from Event import Event
+from structlinks.DataStructures import LinkedList
 class Object:
     def __init__(self,cod,objectCode,expectedDate,category,description, events):
         self.cod = cod
@@ -5,14 +7,11 @@ class Object:
         self.expectedDate = expectedDate
         self.category = category
         self.description = description
-        self.events = events
+        self.events = []
 
-    def addEvents(self,description,dateTime,city,uf,type,destCity,destUf,destType):
-        event = Event(description,dateTime,city,uf,type,destCity,destUf,destType)
-        if(self.events is None):
-            self.events = LinkedList([event])
-        else:
-            self.events.append([event])
+    def addEvents(self,description,dateTime,city,uf,typee,destCity,destUf,destType):
+        event = Event(description,dateTime,city,uf,typee,destCity,destUf,destType)
+        self.events.append(event)
 
     def printList(self):
         print("\nCategoria de entrega:", self.category,

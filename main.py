@@ -4,7 +4,6 @@ import structlinks
 import datetime
 import locale
 from flask import Flask, request
-from structlinks.DataStructures import LinkedList
 from Object import Object
 from Event import Event
 app = Flask("Rastreio")
@@ -66,20 +65,22 @@ def exportJson(object):
 
 @app.route("/rastrear", methods=["GET"])
 def main():
-    f = open("data.json",encoding='utf8')
-    data = json.load(f)
-    return data
+    # f = open("data.json",encoding='utf8')
+    # data = json.load(f)
+    # return data
     id = request.args.get("id")
     locale.setlocale(locale.LC_ALL, 'pt_pt.UTF-8')
     data = getJsonRequest(id)
-    # try:
-    #     object = initializeObject(data)
-    #     addAllEvents(data, object)
-    #     object.events.invert()
-    #     ##object.printList()
-    #     #exportJson(object)
-    #     return json.dumps(object,ensure_ascii=False,default=lambda o: o.__dict__)
-    # except:
-    #     return {"cod":"404","mensagem":" SRO-019: Objeto inválido"}
+    try:
+        object = initializeObject(data)
+        addAllEvents(data, object)
+        print("\n addAllEvents ")
+        #object.events.invert()
+        print("\n invert ")
+        object.printList()
+        #exportJson(object)
+        return json.dumps(object,ensure_ascii=False,default=lambda o: o.__dict__)
+    except:
+        return {"cod":"404","mensagem":" SRO-019: Objeto inválido"}
 
 app.run()
