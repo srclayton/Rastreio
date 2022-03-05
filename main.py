@@ -74,9 +74,7 @@ def main():
     try:
         object = initializeObject(data)
         addAllEvents(data, object)
-        print("\n addAllEvents ")
         #object.events.invert()
-        print("\n invert ")
         object.printList()
         #exportJson(object)
         return json.dumps(object,ensure_ascii=False,default=lambda o: o.__dict__)

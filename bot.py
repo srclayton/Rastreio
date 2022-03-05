@@ -1,5 +1,4 @@
 import logging
-import json
 import requests
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
@@ -10,8 +9,6 @@ from telegram.ext import (
     ConversationHandler,
     CallbackContext,
 )
-from Object import Object
-from Event import Event
 
 # Enable logging
 logging.basicConfig(
@@ -26,19 +23,18 @@ RASTREAR,OPTION, LOCATION, BIO = range(4)
 def start(update: Update, context: CallbackContext) -> int:
     """Starts the conversation and asks the user about their gender."""
     reply_keyboard = [['Rastrear', 'Ajuda', 'Sobre']]
-
     update.message.reply_text(
         'Olá seja bem vindo ao seu bot de rastreamento. '
         'Selecione a opção desejada, ou digite Rastrear, Ajuda ou Sobre',
         reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Boy or Girl?'
+            reply_keyboard, one_time_keyboard=True
         ),
     )
 
     return OPTION
 
 
-def rastreio(update: Update, context: CallbackContext) -> int:
+def OpcRastreio(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     logger.info("Codigo de rastreio %s: %s", user.first_name, update.message.text)
     update.message.reply_text(
@@ -50,23 +46,28 @@ def rastreio(update: Update, context: CallbackContext) -> int:
 
 
 
-def exportCod(update: Update, context: CallbackContext) -> int:
+def rastreiaEncomenda(update: Update, context: CallbackContext) -> int:
     user = update.effective_user
     url = "http://127.0.0.1:5000/rastrear?id="+update.message.text
     r = requests.get(url)
     data = r.json()
 
     if(data['cod'] == "200"):
-        str = 'Categoria: ' + data['category'] + '\nCodigo: ' + data['objectCode'] + '\nDescrição: ' + data['description'] 
-        print(str)
+        str = '📦 ' + data['category'] + ' 📦'
         update.message.reply_text(fr"{str}")
-        for x in data['events']:
+        event = ''
+        for x in reversed(data['events']):
             if(x['destCity'] is None):
-                event = x['description'] + '\nPela ' + x['type'] + ', ' + x['city'] + ' _ '+ x['uf'] + '\n' + x['dateTime']
-                print(event)
-                update.message.reply_markdown_v2(fr' {event}')
+                if(x['description'] == 'Objeto saiu para entrega ao destinatário'):
+                    event += '🥳🎊 '+ x['description'] + ' 🎊🥳\n🚛 De ' + x['type'] + ', ' + x['city'] + ' - ' + x['uf'] + '\n⏰ ' + x['dateTime'] + '\n\n'
+                elif(x['description'] == 'Objeto entregue ao destinatário'):
+                    event += '🏁 '+ x['description'] + ' 🏁' + '\n⏱️ ' + x['dateTime'] + '\n\n'
+                else:
+                    event += x['description'] + '\nDe ' + x['type'] + ', ' + x['city'] + ' - ' + x['uf'] + '\n' + x['dateTime'] + '\n\n'
                 #update.message.reply_markdown_v2(fr"{str}")
-            
+            else:
+                event += x['description'] + '\n🚚 De ' + x['type'] + ', ' + x['city'] + ' - ' + x['uf'] + '\n🚩 Para ' + x['destType'] + ', ' + x['destCity'] + ' - ' + x['destUf'] + '\n⏰ ' + x['dateTime'] + '\n\n'
+        update.message.reply_text(fr"{event}")
 
     else:
         update.message.reply_text(
@@ -94,6 +95,7 @@ def cancel(update: Update, context: CallbackContext) -> int:
 
 
 def main() -> None:
+   
     """Run the bot."""
     # Create the Updater and pass it your bot's token.
     a = open("token.txt","r")
@@ -104,12 +106,12 @@ def main() -> None:
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
-    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    # Add conversation handler with the states 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            OPTION: [MessageHandler(Filters.regex('^(Rastrear|Ajuda|Sobre)$'), rastreio)],
-            RASTREAR: [MessageHandler(Filters.text, exportCod)],
+            OPTION: [MessageHandler(Filters.regex('^(Rastrear|Ajuda|Sobre)$'), OpcRastreio)],
+            RASTREAR: [MessageHandler(Filters.text, rastreiaEncomenda)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
