@@ -48,7 +48,7 @@ def OpcRastreio(update: Update, context: CallbackContext) -> int:
 
 def rastreiaEncomenda(update: Update, context: CallbackContext) -> int:
     user = update.effective_user
-    url = "http://127.0.0.1:5000/rastrear?id="+update.message.text
+    url = "http://0.0.0.0:8080/rastrear?id="+update.message.text
     r = requests.get(url)
     data = r.json()
 

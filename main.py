@@ -6,7 +6,9 @@ import locale
 from flask import Flask, request
 from Object import Object
 from Event import Event
-app = Flask("Rastreio")
+#from waitress import serve
+
+app = Flask(__name__)
 
 def initializeObject(data):
     try:
@@ -64,7 +66,7 @@ def exportJson(object):
 
 
 @app.route("/rastrear", methods=["GET"])
-def main():
+def rastreio():
     # f = open("data.json",encoding='utf8')
     # data = json.load(f)
     # return data
@@ -81,4 +83,6 @@ def main():
     except:
         return {"cod":"404","mensagem":" SRO-019: Objeto inválido"}
 
-app.run()
+if __name__ == '__main__':
+    app.run()
+    #serve(app, port=8080, host="0.0.0.0")
