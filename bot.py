@@ -1,4 +1,5 @@
 import logging
+from tkinter.filedialog import test
 import requests
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
@@ -9,7 +10,7 @@ from telegram.ext import (
     ConversationHandler,
     CallbackContext,
 )
-
+import db
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -17,11 +18,12 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 cod={'id':''}
-RASTREAR,OPTION, LOCATION, BIO = range(4)
+RASTREAR,OPTION, CADASTRAR, BIO = range(4)
 
 
 def start(update: Update, context: CallbackContext) -> int:
     """Starts the conversation and asks the user about their gender."""
+    user = update.effective_user
     reply_keyboard = [['Rastrear', 'Cadastrar', 'Sobre']]
     update.message.reply_text(
         'Olá seja bem vindo ao seu bot de rastreamento. '
@@ -33,9 +35,19 @@ def start(update: Update, context: CallbackContext) -> int:
 
     return OPTION
 
+def cancel(update: Update, context: CallbackContext) -> int:
+    """Cancels and ends the conversation."""
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text(
+        'Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove()
+    )
+
+    return ConversationHandler.END
+
 def OpcRastreio(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    logger.info("Codigo de rastreio %s: %s", user.first_name, update.message.text)
+    logger.info("OPCAO DE RASTREIO %s: %s", user.first_name, update.message.text)
     update.message.reply_text(
         'Por favor digite o seu Codigo de rastreio.',
         reply_markup=ReplyKeyboardRemove(),
@@ -74,22 +86,33 @@ def rastreiaEncomenda(update: Update, context: CallbackContext) -> int:
     return ConversationHandler.END
 
 def OpcCadastro(update: Update, context: CallbackContext) -> int:
-    print("cadastrooo")
-
-
-
-
-def cancel(update: Update, context: CallbackContext) -> int:
-    """Cancels and ends the conversation."""
     user = update.message.from_user
-    logger.info("User %s canceled the conversation.", user.first_name)
+    logger.info("OPCAO DE CADASTRO %s: %s", user.first_name, update.message.text)
     update.message.reply_text(
-        'Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove()
+        'Por favor digite o seu Codigo de rastreio.',
+        reply_markup=ReplyKeyboardRemove(),
     )
+    return CADASTRAR
 
+def cadastrarUsuario(update: Update, context: CallbackContext) -> int:
+    user = update.effective_user
+    jsonUpdate = db.findOne("_id",user.id)
+    text = ""
+    if(jsonUpdate is None):
+        db.insertOne(user.id, user.first_name, update.message.text)
+    else:
+        jsonUpdate = db.findOne("user_tracking_number",update.message.text)
+        print(jsonUpdate, "deub")
+        if(jsonUpdate is None):
+            db.updateOne(user.id, update.message.text)
+            text = "Codigo cadastrado com sucesso!"
+        else:
+            text = "Não foi possivel cadastrar!"
+            
+            
+    update.message.reply_text(fr"{text}")
     return ConversationHandler.END
-
-
+    
 def main() -> None:
    
     """Run the bot."""
@@ -109,6 +132,7 @@ def main() -> None:
             OPTION: [MessageHandler(Filters.regex('^(Rastrear)$'), OpcRastreio),
                      MessageHandler(Filters.regex('^(Cadastrar)$'), OpcCadastro)],
             RASTREAR: [MessageHandler(Filters.text, rastreiaEncomenda)],
+            CADASTRAR: [MessageHandler(Filters.text, cadastrarUsuario)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
