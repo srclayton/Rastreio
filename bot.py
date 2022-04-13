@@ -22,7 +22,7 @@ RASTREAR,OPTION, LOCATION, BIO = range(4)
 
 def start(update: Update, context: CallbackContext) -> int:
     """Starts the conversation and asks the user about their gender."""
-    reply_keyboard = [['Rastrear', 'Ajuda', 'Sobre']]
+    reply_keyboard = [['Rastrear', 'Cadastrar', 'Sobre']]
     update.message.reply_text(
         'Olá seja bem vindo ao seu bot de rastreamento. '
         'Selecione a opção desejada, ou digite Rastrear, Ajuda ou Sobre',
@@ -32,7 +32,6 @@ def start(update: Update, context: CallbackContext) -> int:
     )
 
     return OPTION
-
 
 def OpcRastreio(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
@@ -44,11 +43,9 @@ def OpcRastreio(update: Update, context: CallbackContext) -> int:
 
     return RASTREAR
 
-
-
 def rastreiaEncomenda(update: Update, context: CallbackContext) -> int:
     user = update.effective_user
-    url = "http://0.0.0.0:8080/rastrear?id="+update.message.text
+    url = "http://127.0.0.1:5000/rastrear?id="+update.message.text
     r = requests.get(url)
     data = r.json()
 
@@ -76,9 +73,8 @@ def rastreiaEncomenda(update: Update, context: CallbackContext) -> int:
 
     return ConversationHandler.END
 
-    # with open('cod.json', 'w',encoding='utf8') as f:
-    #     json.dump(cod,f,ensure_ascii=False,default=lambda o: o.__dict__)
-
+def OpcCadastro(update: Update, context: CallbackContext) -> int:
+    print("cadastrooo")
 
 
 
@@ -110,15 +106,15 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            OPTION: [MessageHandler(Filters.regex('^(Rastrear|Ajuda|Sobre)$'), OpcRastreio)],
+            OPTION: [MessageHandler(Filters.regex('^(Rastrear)$'), OpcRastreio),
+                     MessageHandler(Filters.regex('^(Cadastrar)$'), OpcCadastro)],
             RASTREAR: [MessageHandler(Filters.text, rastreiaEncomenda)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
 
     dispatcher.add_handler(conv_handler)
-
-    # Start the Bot
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, rastreiaEncomenda))    # Start the Bot
     updater.start_polling()
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
