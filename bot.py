@@ -97,17 +97,19 @@ def OpcCadastro(update: Update, context: CallbackContext) -> int:
 def cadastrarUsuario(update: Update, context: CallbackContext) -> int:
     user = update.effective_user
     jsonUpdate = db.findOne("_id",user.id)
-    text = ""
+    text = "Codigo cadastrado com sucesso!"
+    user = update.message.from_user
     if(jsonUpdate is None):
         db.insertOne(user.id, user.first_name, update.message.text)
+        logger.info("InsertOne REALIZADO %s: %s", user.first_name, update.message.text)
     else:
         jsonUpdate = db.findOne("user_tracking_number",update.message.text)
-        print(jsonUpdate, "deub")
         if(jsonUpdate is None):
             db.updateOne(user.id, update.message.text)
-            text = "Codigo cadastrado com sucesso!"
+            logger.info("updateOne REALIZADO %s: %s", user.first_name, update.message.text)
         else:
-            text = "Não foi possivel cadastrar!"
+            text = "Não foi possivel cadastrar, codigo já cadastrado!"
+            logger.info("InsertOne FALHOU %s: %s", user.first_name, update.message.text)
             
             
     update.message.reply_text(fr"{text}")
