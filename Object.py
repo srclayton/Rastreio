@@ -1,12 +1,13 @@
 from Event import Event
 from structlinks.DataStructures import LinkedList
 class Object:
-    def __init__(self,cod,objectCode,expectedDate,category,description, events):
+    def __init__(self,cod,objectCode,expectedDate,category,description,imported, events):
         self.cod = cod
         self.objectCode = objectCode
         self.expectedDate = expectedDate
         self.category = category
         self.description = description
+        self.imported = imported
         self.events = []
 
     def addEvents(self,description,dateTime,city,uf,typee,destCity,destUf,destType):

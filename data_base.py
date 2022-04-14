@@ -8,6 +8,7 @@ headers = {
         'Access-Control-Request-Headers': '*',
         'api-key': apiKey
     }
+url = "https://data.mongodb-api.com/app/data-guzuj/endpoint/data/beta/action/"
 
 def insertOne(userId, userName, userTrackingNumber):
     url = "https://data.mongodb-api.com/app/data-guzuj/endpoint/data/beta/action/insertOne"
@@ -18,29 +19,39 @@ def insertOne(userId, userName, userTrackingNumber):
         "document": {
             "_id": userId, 
             "user_name": userName,
-            "user_tracking_number": userTrackingNumber,
+            "user_tracking_number": [userTrackingNumber],
         }
     })
     response = requests.request("POST", url, headers=headers, data=payload)
-    print(response.text)
 
 def findOne(field, value):
-    url = "https://data.mongodb-api.com/app/data-guzuj/endpoint/data/beta/action/find"
-
-    payload = json.dumps({
-    "collection": "dboUsuario",
-    "database": "Distribuidora",
-    "dataSource": "RochaESilvaDB",
-    "filter": {
-        field: value
-    }
-    })
+    url = "https://data.mongodb-api.com/app/data-guzuj/endpoint/data/beta/action/findOne"
+    
+    if(field == "user_tracking_number"):
+        payload = json.dumps({
+            "collection": "dboUsuario",
+            "database": "Distribuidora",
+            "dataSource": "RochaESilvaDB",
+            "filter": {
+                "_id":value[1],
+                field: value[0]
+            }
+        })
+    else:    
+        payload = json.dumps({
+            "collection": "dboUsuario",
+            "database": "Distribuidora",
+            "dataSource": "RochaESilvaDB",
+            "filter": {
+                field: value
+            }
+        })
     response = requests.request("POST", url, headers=headers, data=payload)
-    resp = response.json()    
-    try:
-        return resp["documents"][0]
-    except:
+    resp = response.json()
+    if(resp["document"] is None):
         return None
+    else:
+        return resp["document"]
 
 def updateOne(userId: int, userTrackingNumber: int):
     jsonUpdate = findOne("_id",userId)
