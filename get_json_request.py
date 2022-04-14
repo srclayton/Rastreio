@@ -103,7 +103,7 @@ def rastreio(id):
         #exportJson(object)
         return json.dumps(object,ensure_ascii=False,default=lambda o: o.__dict__)
     except:
-        return {"cod":"404","mensagem":" SRO-019: Objeto inválido"}
+        return json.dumps({"cod":"404","mensagem":" SRO-019: Objeto inválido"},ensure_ascii=False,default=lambda o: o.__dict__)
 
 #if __name__ == '__main__':
     #app.run()
