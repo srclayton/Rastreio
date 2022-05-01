@@ -1,4 +1,5 @@
 import logging
+from tkinter import N
 from tkinter.filedialog import test
 from xml.dom.expatbuilder import parseString
 from xml.etree.ElementTree import tostring
@@ -13,17 +14,18 @@ import json
 import data_base
 import get_json_request
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    encoding='utf-8', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 
 logger = logging.getLogger(__name__)
 cod={'id':''}
-RASTREAR,OPTION, CADASTRAR, LISTAR = range(4)
+RASTREAR,OPTION, CADASTRAR, LISTAR, DELETAR = range(5)
 
 def start(update: Update, context: CallbackContext) -> int:
     """Starts the conversation and asks the user about their gender."""
+    ConversationHandler.END
     user = update.effective_user
-    reply_keyboard = [['Rastrear', 'Cadastrar', 'Listar']]
+    reply_keyboard = [['Rastrear', 'Cadastrar', 'Listar', 'Deletar']]
     update.message.reply_text(
         'Olá seja bem vindo ao seu bot de rastreamento. '
         'Selecione a opção desejada, ou digite Rastrear, Ajuda ou Sobre',
@@ -73,21 +75,21 @@ def rastreiaEncomenda(update: Update, context: CallbackContext) -> int:
                     elif(x['description'] == 'Objeto entregue ao destinatário'):
                         event += '🏁 '+ x['description'] + ' 🏁' + '\n⏱️ ' + x['dateTime'] + '\n\n'
                     else:
-                        event += x['description'] + '\nDe ' + x['type'] + ', ' + x['city'] + ' - ' + x['uf'] + '\n' + x['dateTime'] + '\n\n'
+                        event += x['description'] + '\nNa ' + x['type'] + ', ' + x['city'] + ' - ' + x['uf'] + '\n' + x['dateTime'] + '\n\n'
                     #update.message.reply_markdown_v2(fr"{str}")
                 else:
                     event += x['description'] + '\n🚚 De ' + x['type'] + ', ' + x['city'] + ' - ' + x['uf'] + '\n🚩 Para ' + x['destType'] + ', ' + x['destCity'] + ' - ' + x['destUf'] + '\n⏰ ' + x['dateTime'] + '\n\n'
             except:
                 if(x['destCity'] is None):
-                    event += x['description'] + '\nDe ' + x['city'] + ', ' + x['type']  + '\n' + x['dateTime'] + '\n\n'
+                    event += x['description'] + '\nDo ' + x['city'] + ', ' + x['type']  + '\n' + x['dateTime'] + '\n\n'
                 #update.message.reply_markdown_v2(fr"{str}")
                 else:
-                    event += x['description'] + '\n🚚 De ' + x['city'] + ' - ' + x['type'] + '\n🚩 Para ' + x['destType'] + ', ' + x['destCity'] + ' - ' + x['destUf'] + '\n⏰ ' + x['dateTime'] + '\n\n'
+                    event += x['description'] + '\n🚚 Do ' + x['city'] + ' - ' + x['type'] + '\n🚩 Para ' + x['destType'] + ', ' + x['destCity'] + ' - ' + x['destUf'] + '\n⏰ ' + x['dateTime'] + '\n\n'
         update.message.reply_text(fr"{event}",None)
         logger.info("CODIGO RASTREADO COM SUCESSO %s: %s", user.first_name, update.message.text)
 
     else:
-        logger.info("CODIGO NAO RASTREADO %s: %s", user.first_name, update.message.text)
+        logger.error("CODIGO NÃO RASTREAVEL %s: %s", user.first_name, update.message.text)
         update.message.reply_text(
             data['mensagem']
         )
@@ -118,7 +120,7 @@ def cadastrarUsuario(update: Update, context: CallbackContext) -> int:
             logger.info("updateOne REALIZADO %s: %s", user.first_name, update.message.text)
         else:
             text = "Não foi possivel cadastrar, codigo já cadastrado!"
-            logger.info("updateOne FALHOU %s: %s", user.first_name, update.message.text)
+            logger.error("updateOne FALHOU %s: %s", user.first_name, update.message.text)
             
             
     update.message.reply_text(fr"{text}")
@@ -127,28 +129,58 @@ def cadastrarUsuario(update: Update, context: CallbackContext) -> int:
 def OpcListar(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     logger.info("OPCAO DE LISTAR CODIGOS %s: %s", user.first_name, update.message.text)
-    data = []
-    reply_keyboard = []
     update.message.reply_text(
         'Lista de Codigos:',
         reply_markup=ReplyKeyboardRemove(),
     )
+    data = []
+    reply_keyboard = []
     jsonData = data_base.findOne("_id", user.id)
     if(jsonData is None):
         text="Lista vazia!"
+        logger.error("LISTAR VAZIA %s: %s", user.first_name, update.message.text)
+
     else:
         text=""
         for x in jsonData["user_tracking_number"]:
+            reply_keyboard.append([x])
             text += x + '\n'
-            data.append(x)
-        reply_keyboard.append(data)
     update.message.reply_text(
         fr"{text}",
         reply_markup=ReplyKeyboardMarkup(
             reply_keyboard, one_time_keyboard=True
         ),
     )
-    
-    
+    logger.info("LISTAR DE CODIGOS %s: %s", user.first_name, update.message.text)
 
-    ##return ConversationHandler.END
+    #return LISTAR
+    
+def OpcDeletar(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    jsonData = data_base.findOne("_id", user.id)
+    reply_keyboard = []
+    for x in jsonData["user_tracking_number"]:
+            reply_keyboard.append([x])
+    update.message.reply_text(
+        'Por favor digite o Codigo de rastreio.',
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, one_time_keyboard=True
+        ),
+    )
+    return DELETAR
+
+def deletaCodigo(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    text = "Codigo deletado!"
+    if(data_base.findOne("_id", user.id)):
+        logger.info("OPCAO DE DELETAR CODIGO %s %s: %s", user.id, user.first_name, update.message.text)
+        if(data_base.deleteOne(user.id, update.message.text)['modifiedCount'] == 0):
+            logger.error("OPCAO DE DELETAR CODIGO %s %s: %s", user.id, user.first_name, update.message.text)
+            text = "Não foi possivel deletar o codigo!"
+    else:
+        update.message.reply_text("Codigo Invalido.")
+        logger.error("OPCAO DE DELETAR CODIGO %s %s: %s", user.id, user.first_name, update.message.text)
+        text = "Não foi possivel deletar o codigo!"
+    update.message.reply_text(fr"{text}", reply_markup=ReplyKeyboardRemove())
+
+    return ConversationHandler.END

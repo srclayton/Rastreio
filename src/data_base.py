@@ -72,3 +72,31 @@ def updateOne(userId: int, userTrackingNumber: int):
     response = requests.request("POST", url, headers=headers, data=payload)
     resp = response.json()    
     return resp
+
+def deleteOne(userId: int, userTrackingNumber:int):
+    jsonUpdate = findOne("_id",userId)
+    if(jsonUpdate is None):
+        return False
+    i = 0
+    for x in jsonUpdate["user_tracking_number"]:
+         if(x == userTrackingNumber):
+            del(jsonUpdate["user_tracking_number"][i])
+         i += 1
+    print(jsonUpdate["user_tracking_number"])
+    url = "https://data.mongodb-api.com/app/data-guzuj/endpoint/data/beta/action/updateOne"
+
+    payload = json.dumps({
+    "collection": "dboUsuario",
+    "database": "Distribuidora",
+    "dataSource": "RochaESilvaDB",
+    "filter": {"_id": userId},
+    "update": {
+          "$set": {
+              "user_tracking_number": jsonUpdate["user_tracking_number"],
+          }
+      }
+    })
+    response = requests.request("POST", url, headers=headers, data=payload)
+    resp = response.json()   
+    print(resp) 
+    return resp

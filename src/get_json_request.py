@@ -10,7 +10,16 @@ from Event import Event
 #app = Flask(__name__)
 
 def initializeObject(data):
+    #(cod,objectCode,expectedDate,category,description,imported, events):
     try:
+        object = Object("200",data['objetos'][0]['codObjeto'],
+            data['objetos'][0]['dtPrevista'],
+            data['objetos'][0]['tipoPostal']['categoria'],
+            data['objetos'][0]['tipoPostal']['descricao'],
+            data['objetos'][0]['modalidade'],
+            None
+        )
+    except:
         object = Object("200",data['objetos'][0]['codObjeto'],
             None,
             data['objetos'][0]['tipoPostal']['categoria'],
@@ -18,17 +27,7 @@ def initializeObject(data):
             data['objetos'][0]['modalidade'],
             None
         )
-    except:
-        object = Object(200,data['objetos'][0]['codObjeto'],
-            data['objetos'][0]['dtPrevista'],
-            data['objetos'][0]['tipoPostal']['categoria'],
-            data['objetos'][0]['tipoPostal']['descricao'],
-            data['objetos'][0]['modalidade'],
-            None
-        )
     return object
-
-
 
 def getJsonRequest(key):
     url = "https://proxyapp.correios.com.br/v1/sro-rastro/"
@@ -38,9 +37,11 @@ def getJsonRequest(key):
     return data
 
 def addAllEvents(data, object):
+    #(description,dateTime,city,uf,type,destCity, destUf, destType)
     for x in data['objetos'][0]['eventos']:
+        #object.printList()
         formattedDate = datetime.datetime.strptime(x['dtHrCriado'],'%Y-%m-%dT%H:%M:%S')
-        if(data['objetos'][0]['modalidade'] == "V" and x['codigo'] != "PO" and x['codigo'] != "OEC" and x['codigo'] != "BDE"):
+        if(data['objetos'][0]['modalidade'] == "V" and x['codigo'] != "PO" and x['codigo'] != "OEC" and x['codigo'] != "BDE"and x['codigo'] != "PAR"):
             object.addEvents(
                 x['descricao'],
                 formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
@@ -50,6 +51,16 @@ def addAllEvents(data, object):
                 x['unidadeDestino']['tipo'],
                 x['unidadeDestino']['endereco']['uf'],
                 x['unidadeDestino']['nome'])
+        elif(data['objetos'][0]['modalidade'] == "V" and x['codigo'] == "PAR"):
+            object.addEvents(
+                x['descricao'],
+                formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
+                x['unidade']['endereco']['cidade'],
+                x['unidade']['endereco']['uf'],
+                x['unidade']['tipo'],
+                None,
+                None,
+                None)    
         elif(data['objetos'][0]['modalidade'] == "V"):
             object.addEvents(
                 x['descricao'],
@@ -79,13 +90,11 @@ def addAllEvents(data, object):
                 x['unidade']['tipo'],
                 None,
                 None,
-                None)
-                    
+                None)      
 
 def exportJson(object):
     with open('data.json', 'w',encoding='utf8') as f:
         json.dump(object,f,ensure_ascii=False,default=lambda o: o.__dict__)
-
 
 #@app.route("/rastrear", methods=["GET"])
 def rastreio(id):
@@ -96,6 +105,7 @@ def rastreio(id):
     locale.setlocale(locale.LC_ALL, 'pt_pt.UTF-8')
     data = getJsonRequest(id)
     try:
+
         object = initializeObject(data)
         addAllEvents(data, object)
         #object.events.invert()

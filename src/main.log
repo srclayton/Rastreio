@@ -1,0 +1,81 @@
+2022-04-24 22:32:30,366 - apscheduler.scheduler - INFO - Scheduler started
+2022-04-24 22:32:42,917 - main_bot - INFO - ERROR - CODIGO NÃO RASTREAVEL Clayton: 32132131
+2022-04-24 22:32:57,060 - main_bot - INFO - OPCAO DE LISTAR CODIGOS Clayton: Listar
+2022-04-24 22:33:01,135 - main_bot - INFO - LISTAR DE CODIGOS Clayton: Listar
+2022-04-24 22:35:06,524 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-04-24 22:35:06,525 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-04-24 22:35:06,695 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-04-24 22:35:11,893 - apscheduler.scheduler - INFO - Scheduler started
+2022-04-24 22:35:29,941 - main_bot - INFO - CODIGO RASTREADO COM SUCESSO Clayton: LB528533768HK
+2022-04-24 22:35:41,771 - main_bot - ERROR - CODIGO NÃO RASTREAVEL Clayton: 321321
+2022-04-24 22:37:01,408 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-04-24 22:37:01,408 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-04-24 22:37:01,569 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-04-29 10:51:51,668 - apscheduler.scheduler - INFO - Scheduler started
+2022-04-29 10:51:54,733 - main_bot - ERROR - CODIGO NÃO RASTREAVEL Débora: NX939326657BR
+2022-04-29 10:52:01,012 - main_bot - ERROR - CODIGO NÃO RASTREAVEL Clayton: LB528533768HK
+2022-04-29 10:52:06,455 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-04-29 10:52:06,455 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-04-29 10:52:06,882 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-04-29 10:52:14,677 - apscheduler.scheduler - INFO - Scheduler started
+2022-04-29 10:52:50,076 - apscheduler.scheduler - INFO - Scheduler started
+2022-04-29 10:52:52,018 - main_bot - ERROR - CODIGO NÃO RASTREAVEL Débora: NX939326657BR
+2022-04-29 10:52:54,618 - main_bot - ERROR - CODIGO NÃO RASTREAVEL Clayton: LB528533768HK
+2022-04-29 10:53:08,398 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-04-29 10:53:08,398 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-04-29 10:53:08,568 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-04-29 10:53:24,726 - apscheduler.scheduler - INFO - Scheduler started
+2022-04-29 10:53:27,423 - main_bot - ERROR - CODIGO NÃO RASTREAVEL Clayton: LB528533768HK
+2022-04-29 10:53:55,164 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-04-29 10:53:55,164 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-04-29 10:53:55,324 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-04-29 10:53:57,184 - apscheduler.scheduler - INFO - Scheduler started
+2022-04-29 10:53:59,234 - main_bot - ERROR - CODIGO NÃO RASTREAVEL Clayton: LB528533768HK
+2022-04-29 10:54:33,786 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-04-29 10:54:33,786 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-04-29 10:54:33,938 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-05-01 14:21:56,179 - apscheduler.scheduler - INFO - Scheduler started
+2022-05-01 14:22:00,180 - main_bot - INFO - CODIGO RASTREADO COM SUCESSO Ana: QJ176789847BR
+2022-05-01 14:22:02,714 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-05-01 14:22:02,715 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-05-01 14:22:02,889 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-05-01 14:46:46,680 - apscheduler.scheduler - INFO - Scheduler started
+2022-05-01 14:46:51,359 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\pcc\AppData\Local\Programs\Python\Python39\lib\site-packages\telegram\ext\dispatcher.py", line 555, in process_update
+    handler.handle_update(update, self, check, context)
+  File "C:\Users\pcc\AppData\Local\Programs\Python\Python39\lib\site-packages\telegram\ext\handler.py", line 198, in handle_update
+    return self.callback(update, context)
+  File "C:\Users\pcc\Rastreio\src\main_bot.py", line 65, in rastreiaEncomenda
+    data = json.loads(get_json_request.rastreio(update.message.text))
+TypeError: rastreio() takes 0 positional arguments but 1 was given
+2022-05-01 14:47:03,043 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-05-01 14:47:03,043 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-05-01 14:47:03,227 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-05-01 15:07:01,757 - apscheduler.scheduler - INFO - Scheduler started
+2022-05-01 15:07:07,357 - main_bot - ERROR - CODIGO NÃO RASTREAVEL Clayton: QJ162444449BR
+2022-05-01 15:07:07,357 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\pcc\AppData\Local\Programs\Python\Python39\lib\site-packages\telegram\ext\dispatcher.py", line 555, in process_update
+    handler.handle_update(update, self, check, context)
+  File "C:\Users\pcc\AppData\Local\Programs\Python\Python39\lib\site-packages\telegram\ext\handler.py", line 198, in handle_update
+    return self.callback(update, context)
+  File "C:\Users\pcc\Rastreio\src\main_bot.py", line 95, in rastreiaEncomenda
+    data['mensagem']
+KeyError: 'mensagem'
+2022-05-01 15:07:46,440 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-05-01 15:07:46,440 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-05-01 15:07:46,601 - telegram.ext.updater - WARNING - Exiting immediately!
+2022-05-01 15:07:49,188 - apscheduler.scheduler - INFO - Scheduler started
+2022-05-01 15:07:51,797 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\pcc\AppData\Local\Programs\Python\Python39\lib\site-packages\telegram\ext\dispatcher.py", line 555, in process_update
+    handler.handle_update(update, self, check, context)
+  File "C:\Users\pcc\AppData\Local\Programs\Python\Python39\lib\site-packages\telegram\ext\handler.py", line 198, in handle_update
+    return self.callback(update, context)
+  File "C:\Users\pcc\Rastreio\src\main_bot.py", line 65, in rastreiaEncomenda
+    print("aqi", x)
+UnboundLocalError: local variable 'x' referenced before assignment
+2022-05-01 15:08:03,266 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2022-05-01 15:08:03,266 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2022-05-01 15:08:03,418 - telegram.ext.updater - WARNING - Exiting immediately!
