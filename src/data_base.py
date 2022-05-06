@@ -1,6 +1,6 @@
 import requests
 import json
-a = open("src","r")
+a = open("C:\\Users\\pcc\\Rastreio\\keys\\mongodbKey.txt","r")
 apiKey = a.read()
 a.close()
 headers = {
@@ -100,3 +100,17 @@ def deleteOne(userId: int, userTrackingNumber:int):
     resp = response.json()   
     print(resp) 
     return resp
+
+def insertLog(id, userName, content):
+    url = "https://data.mongodb-api.com/app/data-guzuj/endpoint/data/beta/action/insertOne"
+    payload = json.dumps({
+        "dataSource": "RochaESilvaDB",
+        "database": "Distribuidora",
+        "collection": "dboLogs",
+        "document": {
+            "_id": id, 
+            "user_name": userName,
+            "log":content,
+        }
+    })
+    response = requests.request("POST", url, headers=headers, data=payload)
