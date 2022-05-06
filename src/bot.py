@@ -1,5 +1,3 @@
-import logging
-from tkinter.filedialog import test
 from telegram.ext import (
     Updater,
     CommandHandler,
@@ -9,13 +7,6 @@ from telegram.ext import (
 )
 import main_bot
 import os
-# Enable logging
-logging.basicConfig(
-    encoding='utf-8',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
-
-
-logger = logging.getLogger(__name__)
 cod={'id':''}
 RASTREAR,OPTION, CADASTRAR, LISTAR, DELETAR  = range(5)
 
@@ -25,7 +16,7 @@ def main() -> None:
     # Create the Updater and pass it your bot's token.
     src = os.getcwd()
     print(src)
-    a = open("..\keys\\telegramBotToken.txt","r")
+    a = open("src","r")
     token = a.read()
     a.close()
     updater = Updater(token)

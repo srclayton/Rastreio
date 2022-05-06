@@ -1,6 +1,6 @@
 import requests
 import json
-a = open("..\keys\mongodbKey.txt","r")
+a = open("src","r")
 apiKey = a.read()
 a.close()
 headers = {

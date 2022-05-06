@@ -14,7 +14,7 @@ import json
 import data_base
 import get_json_request
 logging.basicConfig(
-    encoding='utf-8', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    filename='main.log', encoding='utf-8', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 
 logger = logging.getLogger(__name__)

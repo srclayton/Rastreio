@@ -38,59 +38,83 @@ def getJsonRequest(key):
 
 def addAllEvents(data, object):
     #(description,dateTime,city,uf,type,destCity, destUf, destType)
+    i = 0
     for x in data['objetos'][0]['eventos']:
         #object.printList()
+        #print(i,"\n")
+        i=i+1
         formattedDate = datetime.datetime.strptime(x['dtHrCriado'],'%Y-%m-%dT%H:%M:%S')
-        if(data['objetos'][0]['modalidade'] == "V" and x['codigo'] != "PO" and x['codigo'] != "OEC" and x['codigo'] != "BDE"and x['codigo'] != "PAR"):
-            object.addEvents(
-                x['descricao'],
-                formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
-                x['unidade']['tipo'],
-                None,
-                x['unidade']['nome'],
-                x['unidadeDestino']['tipo'],
-                x['unidadeDestino']['endereco']['uf'],
-                x['unidadeDestino']['nome'])
-        elif(data['objetos'][0]['modalidade'] == "V" and x['codigo'] == "PAR"):
-            object.addEvents(
-                x['descricao'],
-                formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
-                x['unidade']['endereco']['cidade'],
-                x['unidade']['endereco']['uf'],
-                x['unidade']['tipo'],
-                None,
-                None,
-                None)    
-        elif(data['objetos'][0]['modalidade'] == "V"):
-            object.addEvents(
-                x['descricao'],
-                formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
-                x['unidade']['tipo'],
-                None,
-                x['unidade']['nome'],
-                None,
-                None,
-                None)            
-        elif(data['objetos'][0]['modalidade'] != "V" and x['codigo'] != "PO" and x['codigo'] != "OEC" and x['codigo'] != "BDE"):
-            object.addEvents(
-                x['descricao'],
-                formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
-                x['unidade']['endereco']['cidade'],
-                x['unidade']['endereco']['uf'],
-                x['unidade']['tipo'],
-                x['unidadeDestino']['endereco']['cidade'],
-                x['unidadeDestino']['endereco']['uf'],
-                x['unidadeDestino']['tipo'])
+        if(data['objetos'][0]['tipoPostal']['sigla'] == "LB" or data['objetos'][0]['tipoPostal']['sigla'] == "NX"):
+            #print(x,"\n")
+            if(x['codigo'] != "PO" and x['codigo'] != "OEC" and x['codigo'] != "BDE"and x['codigo'] != "PAR"):
+                try:
+                    object.addEvents(
+                        x['descricao'],
+                        formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
+                        x['unidade']['tipo'],
+                        None,
+                        x['unidade']['nome'],
+                        x['unidadeDestino']['tipo'],
+                        x['unidadeDestino']['endereco']['uf'],
+                        x['unidadeDestino']['nome'])
+                except:
+                    object.addEvents(
+                    x['descricao'],
+                        formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
+                        x['unidade']['endereco']['cidade'],
+                        x['unidade']['endereco']['uf'],
+                        x['unidade']['tipo'],
+                        x['unidadeDestino']['endereco']['cidade'],
+                        x['unidadeDestino']['endereco']['uf'],
+                        x['unidadeDestino']['tipo'])
+                print("\n\neu sei que passou aqui")
+            elif(x['codigo'] == "PAR"):
+                #print("par?")
+        #elif(data['objetos'][0]['modalidade'] == "V" and x['codigo'] == "PAR"):
+                object.addEvents(
+                    x['descricao'],
+                    formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
+                    x['unidade']['endereco']['cidade'],
+                    x['unidade']['endereco']['uf'],
+                    x['unidade']['tipo'],
+                    None,
+                    None,
+                    None)
+            else:    
+                #print("?????")
+        #elif(data['objetos'][0]['modalidade'] == "V"):
+                object.addEvents(
+                    x['descricao'],
+                    formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
+                    x['unidade']['tipo'],
+                    None,
+                    x['unidade']['nome'],
+                    None,
+                    None,
+                    None)            
         else:
-            object.addEvents(
-                x['descricao'],
-                formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
-                x['unidade']['endereco']['cidade'],
-                x['unidade']['endereco']['uf'],
-                x['unidade']['tipo'],
-                None,
-                None,
-                None)      
+            #print("n faz sentido mas passei aqui")
+            if(x['codigo'] != "PO" and x['codigo'] != "OEC" and x['codigo'] != "BDE"):
+            #(data['objetos'][0]['modalidade'] != "V" and x['codigo'] != "PO" and x['codigo'] != "OEC" and x['codigo'] != "BDE"):
+                object.addEvents(
+                    x['descricao'],
+                    formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
+                    x['unidade']['endereco']['cidade'],
+                    x['unidade']['endereco']['uf'],
+                    x['unidade']['tipo'],
+                    x['unidadeDestino']['endereco']['cidade'],
+                    x['unidadeDestino']['endereco']['uf'],
+                    x['unidadeDestino']['tipo'])
+            else:
+                object.addEvents(
+                    x['descricao'],
+                    formattedDate.strftime("%A, %d. %B %Y %I:%M%p").capitalize(),
+                    x['unidade']['endereco']['cidade'],
+                    x['unidade']['endereco']['uf'],
+                    x['unidade']['tipo'],
+                    None,
+                    None,
+                    None)      
 
 def exportJson(object):
     with open('data.json', 'w',encoding='utf8') as f:
@@ -105,7 +129,6 @@ def rastreio(id):
     locale.setlocale(locale.LC_ALL, 'pt_pt.UTF-8')
     data = getJsonRequest(id)
     try:
-
         object = initializeObject(data)
         addAllEvents(data, object)
         #object.events.invert()
@@ -113,8 +136,8 @@ def rastreio(id):
         #exportJson(object)
         return json.dumps(object,ensure_ascii=False,default=lambda o: o.__dict__)
     except:
-        return json.dumps({"cod":"404","mensagem":" SRO-019: Objeto inválido"},ensure_ascii=False,default=lambda o: o.__dict__)
+       return json.dumps({"cod":"404","mensagem":" SRO-019: Objeto inválido"},ensure_ascii=False,default=lambda o: o.__dict__)
 
 #if __name__ == '__main__':
-    #app.run()
+   # app.run()
     #serve(app, port=8080, host="0.0.0.0")

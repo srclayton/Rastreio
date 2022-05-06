@@ -12,3 +12,7 @@ data.json
 __pycache__
 test.py
 bot.spec
+main.log
+src/main.log
+main_bot.log
+example.log
